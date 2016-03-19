@@ -41,13 +41,13 @@ module Simptus
       end
       
       # iniファイルに記述されたサーバ分のCPU使用率、空きメモリ容量を計算して返却する。
-      # server_list     :  iniファイルに記述されたサーバリストを格納。Hashオブジェクト。
+      # servers_list     :  iniファイルに記述されたサーバリストを格納。Hashオブジェクト。
       # server_resources:  CPU,メモリの各ファイルからリソース計測用に該当する行のみ格納。Hashオブジェクト。
       #                     ex) MemAvailable: 80000000 KB
       # resources_final :  整形済みのリソース情報を格納。Hashオブジェクト。
       def self.get_resource(servers_list)
         server_resources = extract_resource(servers_list)
-        resources_final = {}
+        shape_resources = {}
         server_resources.each_key do |section|
 
           server_name = section.to_s
@@ -59,15 +59,23 @@ module Simptus
           # totalとidleを取得
           # [cpu user nice system idle iowait irq softirq steal guest guest_nice]
           use_cpu = server_resources[section][:cpu].chomp.split(' ')[1 .. 10].map { |n| n.to_i }
-          resources_final[total] = use_cpu.reduce { |sum, m| sum += m }
-          resources_final[idle] = use_cpu[3]
+          shape_resources[total] = use_cpu.reduce { |sum, m| sum += m }
+          shape_resources[idle] = use_cpu[3]
 
           # 空きメモリ容量を計算
           # [MemAvailable: nnnnnnn KB]
-          free_mem = server_resources[section][:mem].chomp.split(' ')[1].to_i
-          resources_final[mem] = free_mem / 1024
+          if server_resources[section][:mem].is_a?(String)
+            free_mem = server_resources[section][:mem].chomp.split(' ')[1].to_i
+            shape_resources[mem] = free_mem / 1024
+          else
+            free_mem = 0
+            server_resources[section][:mem].each do |m|
+              free_mem += m.chomp.split(' ')[1].to_i
+            end
+            shape_resources[mem] = free_mem / 1024
+          end
         end
-        resources_final
+        shape_resources
       end
 
       def self.extract_resource(servers_list)
@@ -76,28 +84,47 @@ module Simptus
           resources[section] = {}
           connection = servers_list[section][:connection]
           if connection == 'local'
-            File.open('/proc/stat', 'r') do |cpu|
-              cpu.each_line do |line|
-                resources[section][:cpu] = line if line =~ /^cpu /
-              end
-            end
-            File.open('/proc/meminfo', 'r') do |mem|
-              mem.each_line do |line|
-                resources[section][:mem] = line if line =~ /^MemAvailable/
-              end
-            end
+            cpu = ''
+            File.open('/proc/stat', 'r').each_line { |l| cpu += l }
+            mem = ''
+            File.open('/proc/meminfo', 'r').each_line { |l| mem += l }
+            raw_resources = cpu + mem
           else
-            resources_raw = connection.exec! 'cat /proc/stat; cat /proc/meminfo'
-            resources_raw.each_line do |line|
-              resources[section][:cpu] = line if line =~ /^cpu / 
-              resources[section][:mem] = line if line =~ /^MemAvailable/ 
-            end
+            raw_resources = connection.exec! 'cat /proc/stat; cat /proc/meminfo'
           end
+          resources[section][:cpu] = extract_cpu(raw_resources)
+          resources[section][:mem] = extract_mem(raw_resources)
         end
         resources
       end
 
-      private_class_method :extract_resource, :ini_config
+      def self.extract_cpu(data)
+        cpu_line = ''
+        data.each_line do |c|
+          cpu_line = c if c =~ /^cpu /
+        end
+        cpu_line
+      end
+
+      def self.extract_mem(data)
+        if data.include?('MemAvailable')
+          mem_line = ''
+          data.each_line do |m|
+            if m =~ /^MemAvailable/
+              mem_line = m
+              break
+            end
+          end
+        else
+          mem_line = []
+          data.each_line do |m|
+            mem_line << m if m =~ /^MemFree|^Buffers|^Cached/
+          end
+        end
+        mem_line
+      end
+
+      private_class_method :extract_resource, :ini_config, :extract_cpu, :extract_mem
     end
   end
 end
