@@ -14,12 +14,16 @@ module Simptus
         end
         DB.prepare(servers_list)
 
+        web_start
         daemonize
         set_trap
         run(servers_list)
       end
 
       private
+
+      def web_start
+      end
 
       def run(servers_list)
         loop do
