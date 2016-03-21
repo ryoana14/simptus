@@ -1,5 +1,3 @@
-完全に未完成なので動かそうとしても辛いだけです。。。
-
 # Simptus
 
 Simptus is resource monitoring tool. It is agentless, manager host collct resource which execute ssh command to monitored host.
@@ -25,8 +23,33 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Usage of simptus command:
 
+    $ simptus help
+    Commands:
+    simptus command -d [INTERVAL](sec)  # Start command mode. Default interval is 600(sec).
+    simptus daemon -d [INTERVAL](sec)   # Start daemon mode. Default interval is 600(sec).
+    simptus help [COMMAND]              # Describe available commands or one specific command
+    simptus init                        # Initialize.
+    simptus kill -s [SIGNAL]            # Kill process of Simptus.
+    simptus server -p [PORT]            # Start web server
+    simptus status                      # Check Simptus's status
+
+First, execute `simptus init`.
+This command create `$HOME/.simptus` dir, `simptus.ini` and  `simptus_auth` file.
+
+Next, edit `$HOME/.simptus/simptus.ini` file while looking at exmple.
+
+If you check monitored host on command line mode, please run as follow.
+
+    $ simptus command
+
+If you check on web interface, please run as follow.
+
+    $ simptus daemon
+    $ simptus server
+
+and open your web browser, access `127.0.0.1:3000`.
 
 ## Contributing
 
