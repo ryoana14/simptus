@@ -32,7 +32,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "sqlite3", '~> 1.3'
   spec.add_runtime_dependency "net-ssh", '~> 3.0'
   spec.add_runtime_dependency "sinatra", '~> 1.4'
-  spec.add_runtime_dependency "sinatra-reloader", '~> 1.0'
   spec.add_runtime_dependency "lazy_high_charts", '~> 1.5'
   spec.add_runtime_dependency "inifile", '~> 3.0'
   spec.add_runtime_dependency "thor", '~> 0.19'
