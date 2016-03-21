@@ -25,7 +25,17 @@ module Simptus
         puts 'Make Simptus inifile..Done'
         puts "Please edit #{dir}/simptus.ini."
       else
-        puts 'Simptus inifile already exist. Initialize is end.'
+        puts 'Simptus inifile already exist.'
+      end
+
+      unless File.exist?("#{dir}/simptus_auth")
+        File.open("#{dir}/simptus_auth", 'w') do |f|
+          f.puts 'simptus:password'
+        end
+        puts 'Make Simptus auth file for WebGUI'
+        puts 'Please edit this file.'
+      else
+        puts 'Simptus auth file is already exist. Initialize end.'
       end
     end
 
@@ -38,6 +48,12 @@ module Simptus
       daemon = Daemon.new(interval)
       daemon.start
     end
+
+    def self.run_server(port)
+      config = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'config.ru'))
+      exec "cd #{File.dirname(config)}; rackup -p #{port} #{config}"
+    end
+
 
     def self.status
       unless File.exist?(Common.pid_file)

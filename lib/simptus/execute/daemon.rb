@@ -12,18 +12,14 @@ module Simptus
         servers_list.each_key do |s|
           servers_list[s] = Common.create_connection(servers_list[s])
         end
-        DB.prepare(servers_list)
+        DB.prepare
 
-        web_start
         daemonize
         set_trap
         run(servers_list)
       end
 
       private
-
-      def web_start
-      end
 
       def run(servers_list)
         loop do
