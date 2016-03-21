@@ -35,21 +35,26 @@ Usage of simptus command:
     simptus server -p [PORT]            # Start web server
     simptus status                      # Check Simptus's status
 
-First, execute `simptus init`.
+First, execute `simptus init`.  
 This command create `$HOME/.simptus` dir, `simptus.ini` and  `simptus_auth` file.
 
 Next, edit `$HOME/.simptus/simptus.ini` file while looking at exmple.
 
-If you check monitored host on command line mode, please run as follow.
+If you want to check monitored host on command line mode:
 
     $ simptus command
 
-If you check on web interface, please run as follow.
+If you want to check on web interface:
 
     $ simptus daemon
     $ simptus server
 
 and open your web browser, access `127.0.0.1:3000`.
+
+If you want to end the monitoring:
+
+    (Terminate server at Ctrl+c)
+    $ simptus kill
 
 ## Contributing
 
