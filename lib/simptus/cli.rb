@@ -11,20 +11,25 @@ module Simptus
       Execute.init
     end
 
-    desc 'command -d [INTERVAL](sec)', 'Start command mode. Default interval is 600(sec)'
+    desc 'command -d [INTERVAL](sec)', 'Start command mode. Default interval is 600(sec).'
     define_options
     def command
       puts "Start Simptus Command mode at #{options[:interval]}-second intervals"
       Execute.run_command(options[:interval])
     end
 
-    desc 'daemon -d [INTERVAL](sec) -p [PORT]',
-         'Start daemon mode. Default interval is 600(sec) and port is 3000'
+    desc 'daemon -d [INTERVAL](sec)',
+         'Start daemon mode. Default interval is 600(sec).'
     define_options
-    option :port, type: :numeric, default: 3000, aliases: ['-p']
     def daemon
       puts "Start Simptus Daemon mode at #{options[:interval]}-second intervals"
       Execute.run_daemon(options[:interval])
+    end
+
+    desc 'server -p [PORT]', 'Start web server'
+    option :port, type: :numeric, default: 3000, aliases: ['-p']
+    def server
+      Execute.run_server(options[:port])
     end
 
     desc 'status', 'Check Simptus\'s status'

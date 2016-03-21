@@ -1,9 +1,11 @@
 require 'active_record'
+require 'simptus/execute'
 
 module Simptus
   module DB
-    def self.prepare(server_list)
+    def self.prepare
       db_path = File.join(ENV["HOME"], '.simptus', 'simptus.sqlite3')
+      server_list = Execute::Common.read_server_list
       connect_db(db_path)
       create_table_if_not_exists(db_path, server_list)
     end
@@ -14,11 +16,8 @@ module Simptus
       ActiveRecord::Base.establish_connection options
     end
 
-    # テーブルが存在する場合はコネクションを返す。
     # 存在しない場合はDBとテーブルを作成する。
     def self.create_table_if_not_exists(path, server_list)
-      create_db_path(path)
-
       connection = ActiveRecord::Base.connection
 
       return if connection.table_exists?(:resources)
@@ -41,11 +40,6 @@ module Simptus
       end
     end
 
-    # DB格納ディレクトリの作成
-    def self.create_db_path(path)
-      FileUtils.mkdir_p File.dirname(path)
-    end
-
-    private_class_method :connect_db, :create_table_if_not_exists, :create_db_path  
+    private_class_method :connect_db, :create_table_if_not_exists
   end
 end

@@ -49,6 +49,12 @@ module Simptus
       daemon.start
     end
 
+    def self.run_server(port)
+      config = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'config.ru'))
+      exec "cd #{File.dirname(config)}; rackup -p #{port} #{config}"
+    end
+
+
     def self.status
       unless File.exist?(Common.pid_file)
         status = 'stopped'
