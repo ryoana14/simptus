@@ -25,7 +25,17 @@ module Simptus
         puts 'Make Simptus inifile..Done'
         puts "Please edit #{dir}/simptus.ini."
       else
-        puts 'Simptus inifile already exist. Initialize is end.'
+        puts 'Simptus inifile already exist.'
+      end
+
+      unless File.exist?("#{dir}/simptus_auth")
+        File.open("#{dir}/simptus_auth", 'w') do |f|
+          f.puts 'simptus:password'
+        end
+        puts 'Make Simptus auth file for WebGUI'
+        puts 'Please edit this file.'
+      else
+        puts 'Simptus auth file is already exist. Initialize end.'
       end
     end
 
